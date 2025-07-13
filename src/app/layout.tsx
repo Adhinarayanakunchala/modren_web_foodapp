@@ -73,13 +73,22 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="system"
           enableSystem
-          disableTransitionOnChange
+          disableTransitionOnChange={false}
+          themes={[
+            "light",
+            "dark", 
+            "system",
+            "theme-green",
+            "theme-professional",
+            "theme-purple", 
+            "theme-rose"
+          ]}
         >
           <ReduxProvider>
             <DataInitializer />
-            <div className="min-h-screen bg-background">
+            <div className="min-h-screen bg-background transition-all duration-300">
               <Header />
               <main>{children}</main>
               <Toaster />
