@@ -10,7 +10,10 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "FreshStore - Fresh Groceries Delivered Fast",
+  title: {
+    default: "FreshStore - Fresh Groceries Delivered Fast",
+    template: "%s | FreshStore"
+  },
   description: "Get farm-fresh produce, quality meats, and pantry essentials delivered to your door in as little as 30 minutes. Shop now for the best deals on groceries!",
   keywords: ["groceries", "fresh produce", "online shopping", "food delivery", "organic", "meat", "dairy", "pantry"],
   authors: [{ name: "FreshStore Team" }],
@@ -25,6 +28,20 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    other: [
+      { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#10B981" },
+    ],
+  },
+  manifest: "/site.webmanifest",
   openGraph: {
     title: "FreshStore - Fresh Groceries Delivered Fast",
     description: "Get farm-fresh produce, quality meats, and pantry essentials delivered to your door in as little as 30 minutes.",
@@ -46,6 +63,7 @@ export const metadata: Metadata = {
     title: "FreshStore - Fresh Groceries Delivered Fast",
     description: "Get farm-fresh produce, quality meats, and pantry essentials delivered to your door in as little as 30 minutes.",
     images: ["/og-image.jpg"],
+    creator: "@freshstore",
   },
   robots: {
     index: true,
@@ -61,6 +79,7 @@ export const metadata: Metadata = {
   verification: {
     google: "your-google-site-verification-code",
   },
+  category: "e-commerce",
 }
 
 export default function RootLayout({
@@ -70,6 +89,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+        <meta name="theme-color" content="#10B981" />
+        <meta name="msapplication-TileColor" content="#10B981" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
+      </head>
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"

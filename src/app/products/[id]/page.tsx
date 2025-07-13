@@ -52,9 +52,9 @@ export default function ProductDetailsPage() {
   const [activeTab, setActiveTab] = useState("description")
   
   // Find product by ID
-  const product = products.find(p => p.id === params.id)
-  const cartItem = cartItems.find(item => item.product.id === params.id)
-  const isFavorite = favorites.some(fav => fav.id === params.id)
+  const product = products.find((p: Product) => p.id === params.id)
+  const cartItem = cartItems.find((item: any) => item.product.id === params.id)
+  const isFavorite = favorites.some((fav: any) => fav.id === params.id)
   
   // Mock additional product data
   const productImages = product?.images || [
@@ -86,6 +86,51 @@ export default function ProductDetailsPage() {
       helpful: 8
     }
   ]
+
+  // Update page metadata dynamically
+  useEffect(() => {
+    if (product) {
+      document.title = `${product.name} | FreshStore`
+      
+      // Update meta description
+      const metaDescription = document.querySelector('meta[name="description"]')
+      if (metaDescription) {
+        metaDescription.setAttribute('content', `Buy ${product.name} - ${product.description}. Price: ${formatPrice(product.price)}. Rating: ${product.rating} stars. Available for fast delivery.`)
+      }
+      
+      // Update Open Graph tags
+      const ogTitle = document.querySelector('meta[property="og:title"]')
+      if (ogTitle) {
+        ogTitle.setAttribute('content', `${product.name} | FreshStore`)
+      }
+      
+      const ogDescription = document.querySelector('meta[property="og:description"]')
+      if (ogDescription) {
+        ogDescription.setAttribute('content', `${product.description} - Available for ${formatPrice(product.price)}`)
+      }
+      
+      const ogImage = document.querySelector('meta[property="og:image"]')
+      if (ogImage) {
+        ogImage.setAttribute('content', product.image)
+      }
+      
+      // Update Twitter Card tags
+      const twitterTitle = document.querySelector('meta[name="twitter:title"]')
+      if (twitterTitle) {
+        twitterTitle.setAttribute('content', `${product.name} | FreshStore`)
+      }
+      
+      const twitterDescription = document.querySelector('meta[name="twitter:description"]')
+      if (twitterDescription) {
+        twitterDescription.setAttribute('content', `${product.description} - ${formatPrice(product.price)}`)
+      }
+      
+      const twitterImage = document.querySelector('meta[name="twitter:image"]')
+      if (twitterImage) {
+        twitterImage.setAttribute('content', product.image)
+      }
+    }
+  }, [product])
   
   if (!product) {
     return (
@@ -225,7 +270,7 @@ export default function ProductDetailsPage() {
             
             {/* Thumbnail images */}
             <div className="flex gap-2 overflow-x-auto">
-              {productImages.map((image, index) => (
+              {productImages.map((image: string, index: number) => (
                 <motion.div
                   key={index}
                   className={cn(
