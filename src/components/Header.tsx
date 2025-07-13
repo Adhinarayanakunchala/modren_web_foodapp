@@ -3,16 +3,41 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { ShoppingCart, Search, Menu, User, Heart } from "lucide-react"
+import { ThemeSelector } from "@/components/ui/theme-selector"
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator,
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { 
+  ShoppingCart, 
+  Search, 
+  Menu, 
+  User, 
+  Heart, 
+  UserCircle, 
+  Package, 
+  LogOut,
+  Settings
+} from "lucide-react"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { useCartItemCount, useAppDispatch } from "@/store/hooks"
+import { useCartItemCount, useAppDispatch, useAppSelector } from "@/store/hooks"
 import { toggleCart } from "@/store/slices/cartSlice"
 import { setSearchQuery, toggleMobileMenu } from "@/store/slices/uiSlice"
+import { logout } from "@/store/slices/userSlice"
+import { showSuccessNotification } from "@/store/slices/uiSlice"
+import { RootState } from "@/store"
 
 export function Header() {
   const cartItemCount = useCartItemCount()
   const dispatch = useAppDispatch()
+  const { user, isAuthenticated } = useAppSelector((state: RootState) => state.user)
+  const { favorites } = useAppSelector((state: RootState) => state.user)
 
   const handleCartClick = () => {
     dispatch(toggleCart())
@@ -26,11 +51,20 @@ export function Header() {
     dispatch(setSearchQuery(e.target.value))
   }
 
+  const handleLogout = () => {
+    dispatch(logout())
+    dispatch(showSuccessNotification("Successfully logged out"))
+  }
+
+  const getUserInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase()
+  }
+
   return (
     <motion.header 
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b"
+      className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b"
     >
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-4">
@@ -70,6 +104,12 @@ export function Header() {
             <Link href="/about" className="text-sm font-medium hover:text-primary transition-colors">
               About
             </Link>
+            <Link href="/services" className="text-sm font-medium hover:text-primary transition-colors">
+              Services
+            </Link>
+            <Link href="/contact" className="text-sm font-medium hover:text-primary transition-colors">
+              Contact
+            </Link>
           </nav>
 
           {/* Actions */}
@@ -79,15 +119,91 @@ export function Header() {
               <Search className="h-5 w-5" />
             </Button>
 
+            {/* Theme Selector */}
+            <ThemeSelector />
+
             {/* Favorites */}
-            <Button size="icon" variant="ghost" className="hidden sm:flex">
+            <Button size="icon" variant="ghost" className="hidden sm:flex relative">
               <Heart className="h-5 w-5" />
+              {favorites.length > 0 && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-2 -right-2"
+                >
+                  <Badge 
+                    variant="destructive" 
+                    className="h-5 w-5 flex items-center justify-center p-0 text-xs"
+                  >
+                    {favorites.length}
+                  </Badge>
+                </motion.div>
+              )}
             </Button>
 
-            {/* User Account */}
-            <Button size="icon" variant="ghost" className="hidden sm:flex">
-              <User className="h-5 w-5" />
-            </Button>
+            {/* User Account Dropdown */}
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    className="relative rounded-full"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user?.avatar} alt={user?.name} />
+                      <AvatarFallback>
+                        {user?.name ? getUserInitials(user.name) : 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">{user?.name}</p>
+                      <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="cursor-pointer">
+                      <UserCircle className="mr-2 h-4 w-4" />
+                      My Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile/orders" className="cursor-pointer">
+                      <Package className="mr-2 h-4 w-4" />
+                      My Orders
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile/wishlist" className="cursor-pointer">
+                      <Heart className="mr-2 h-4 w-4" />
+                      Wishlist
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile/settings" className="cursor-pointer">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button size="icon" variant="ghost" className="hidden sm:flex">
+                <Link href="/auth/login">
+                  <User className="h-5 w-5" />
+                </Link>
+              </Button>
+            )}
 
             {/* Cart */}
             <Button size="icon" variant="ghost" className="relative" onClick={handleCartClick}>
